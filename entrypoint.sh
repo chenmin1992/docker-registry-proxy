@@ -10,13 +10,19 @@ if [ "x$RESOLVERS" = "x" ]; then
     exit 66
 fi
 
-echo "DEBUG, determined RESOLVERS from /etc/resolv.conf: '$RESOLVERS'"
+[[ "a$DEBUG" == "atrue" ]] && echo "DEBUG, determined RESOLVERS from /etc/resolv.conf: '$RESOLVERS'"
 
-conf=""
+conf="resolver"
 for ONE_RESOLVER in ${RESOLVERS}; do
 	echo "Possible resolver: $ONE_RESOLVER"
-	conf="resolver $ONE_RESOLVER; "
+	conf="$conf $ONE_RESOLVER"
 done
+
+if [[ "a$ENABLE_IPV6" == "atrue" ]]; then
+    conf="$conf;"
+else
+    conf="$conf ipv6=off;"
+fi
 
 echo "Final chosen resolver: $conf"
 confpath=/etc/nginx/resolvers.conf
@@ -36,7 +42,7 @@ ALLDOMAINS=""
 echo -n "" > /etc/nginx/docker.intercept.map
 
 # Some hosts/registries are always needed, but others can be configured in env var REGISTRIES
-for ONEREGISTRYIN in docker.caching.proxy.internal registry-1.docker.io auth.docker.io ${REGISTRIES}; do
+for ONEREGISTRYIN in docker.caching.proxy.internal registry-1.docker.io auth.docker.io production.cloudflare.docker.com ${REGISTRIES}; do
     ONEREGISTRY=$(echo ${ONEREGISTRYIN} | xargs) # Remove whitespace
     echo "Adding certificate for registry: $ONEREGISTRY"
     ALLDOMAINS="${ALLDOMAINS},DNS:${ONEREGISTRY}"

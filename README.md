@@ -102,7 +102,7 @@ for this to work it requires inserting a root CA certificate into system trusted
 
 ### Simple (no auth, all cache)
 ```bash
-docker run --rm --name docker_registry_proxy -it \
+docker run --rm --name docker-registry-proxy -it \
        -p 0.0.0.0:3128:3128 -e ENABLE_MANIFEST_CACHE=true \
        -v $(pwd)/docker_mirror_cache:/docker_mirror_cache \
        -v $(pwd)/docker_mirror_certs:/ca \
@@ -116,7 +116,7 @@ For Docker Hub authentication:
 - `username` should NOT be an email, use the regular username
 
 ```bash
-docker run --rm --name docker_registry_proxy -it \
+docker run --rm --name docker-registry-proxy -it \
        -p 0.0.0.0:3128:3128 -e ENABLE_MANIFEST_CACHE=true \
        -v $(pwd)/docker_mirror_cache:/docker_mirror_cache \
        -v $(pwd)/docker_mirror_certs:/ca \
@@ -144,7 +144,7 @@ If you run GitLab on `git.example.com` and its registry on `reg.example.com`, yo
 For GitLab.com itself the authentication domain should be `gitlab.com`.
 
 ```bash
-docker run  --rm --name docker_registry_proxy -it \
+docker run  --rm --name docker-registry-proxy -it \
        -p 0.0.0.0:3128:3128 -e ENABLE_MANIFEST_CACHE=true \
        -v $(pwd)/docker_mirror_cache:/docker_mirror_cache \
        -v $(pwd)/docker_mirror_certs:/ca \
@@ -165,7 +165,7 @@ To be able to use GCR you should set `AUTH_REGISTRIES_DELIMITER` to something di
 Example with GCR using credentials from a service account from a key file `servicekey.json`:
 
 ```bash
-docker run --rm --name docker_registry_proxy -it \
+docker run --rm --name docker-registry-proxy -it \
        -p 0.0.0.0:3128:3128 -e ENABLE_MANIFEST_CACHE=true \
        -v $(pwd)/docker_mirror_cache:/docker_mirror_cache \
        -v $(pwd)/docker_mirror_certs:/ca \
@@ -239,7 +239,7 @@ Since `0.4` there is a separate `-debug` version of the image, which includes `n
 This allows very in-depth debugging. Use sparingly, and definitely not in production.
 
 ```bash
-docker run --rm --name docker_registry_proxy -it 
+docker run --rm --name docker-registry-proxy -it \
        -e DEBUG_NGINX=true -e DEBUG=true -e DEBUG_HUB=true -p 0.0.0.0:8081:8081 -p 0.0.0.0:8082:8082 \
        -p 0.0.0.0:3128:3128 -e ENABLE_MANIFEST_CACHE=true \
        -v $(pwd)/docker_mirror_cache:/docker_mirror_cache \
