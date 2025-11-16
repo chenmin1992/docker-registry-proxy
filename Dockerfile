@@ -4,7 +4,7 @@
 # We start from my nginx fork which includes the proxy-connect module from tEngine
 # Source is available at https://github.com/rpardini/nginx-proxy-connect-stable-alpine
 # This is already multi-arch!
-ARG BASE_IMAGE="docker.io/rpardini/nginx-proxy-connect-stable-alpine:nginx-1.26.3-alpine-3.21.3"
+ARG BASE_IMAGE="klutzchenmin/nginx-proxy-connect-stable-alpine:nginx-1.26.3-alpine-3.21.3"
 # Could be "-debug"
 ARG BASE_IMAGE_SUFFIX=""
 FROM ${BASE_IMAGE}${BASE_IMAGE_SUFFIX}
@@ -13,10 +13,10 @@ FROM ${BASE_IMAGE}${BASE_IMAGE_SUFFIX}
 LABEL org.opencontainers.image.source=https://github.com/rpardini/docker-registry-proxy
 
 # apk packages that will be present in the final image both debug and release
-RUN apk add --no-cache --update bash ca-certificates-bundle coreutils openssl
+RUN apk add --no-cache --update bash ca-certificates-bundle coreutils openssl proxychains-ng
 
 # If set to 1, enables building mitmproxy, which helps a lot in debugging, but is super heavy to build.
-ARG DEBUG_BUILD="1"
+ARG DEBUG_BUILD="0"
 ENV DO_DEBUG_BUILD="$DEBUG_BUILD"
 
 # Build mitmproxy via pip. This is heavy, takes minutes do build and creates a 90mb+ layer. Oh well.
@@ -52,6 +52,7 @@ ADD nginx.manifest.stale.conf /etc/nginx/nginx.manifest.stale.conf
 ADD entrypoint.sh /entrypoint.sh
 ADD create_ca_cert.sh /create_ca_cert.sh
 RUN chmod +x /create_ca_cert.sh /entrypoint.sh
+RUN sed -i -e 's/# localnet 127.0.0.0/localnet 127.0.0.0/g' -e 's/# localnet ::1/localnet ::1/g' -e 's/# localnet 10.0.0.0/localnet 10.0.0.0/g' -e 's/# localnet 172.16.0.0/localnet 172.16.0.0/g' -e 's/# localnet 192.168.0.0/localnet 192.168.0.0/g' /etc/proxychains/proxychains.conf
 
 # Clients should only use 3128, not anything else.
 EXPOSE 3128

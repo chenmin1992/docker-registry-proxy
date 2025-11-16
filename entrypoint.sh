@@ -296,4 +296,21 @@ echo "Testing nginx config..."
 ${NGINX_BIN} -t
 
 echo "Starting nginx! Have a nice day."
-${NGINX_BIN} -g "daemon off;"
+# proxychains-ng
+sed -i -e 's/^socks/# socks/g' -e 's/^http/# http/g' /etc/proxychains/proxychains.conf
+if [ ! -z $PROXY ]; then
+    proto=$(echo $PROXY | awk -F'[:/]' '{print $1}')
+    addr=$(echo $PROXY | awk -F'[:/]' '{print $4}')
+    port=$(echo $PROXY | awk -F'[:/]' '{print $5}')
+    if [ ! -z $proto -a ! -z $addr -a ! -z $port ]; then
+        echo "PROXY $PROXY is set, using upstream proxy: $proto $addr $port"
+        echo "$proto $addr $port" >> /etc/proxychains/proxychains.conf
+        /usr/bin/proxychains4 ${NGINX_BIN} -g "daemon off;"
+    else
+        echo "PROXY $PROXY is set, BUT CAN NOT BE PARSED, all of http requests will connect DIRECTLY"
+        ${NGINX_BIN} -g "daemon off;"
+    fi
+else
+    echo 'PROXY is not set, all of http requests will connect DIRECTLY'
+    ${NGINX_BIN} -g "daemon off;"
+fi
